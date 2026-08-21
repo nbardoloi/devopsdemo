@@ -1,0 +1,65 @@
+# Azure DevOps Pipeline for SQL Database DACPAC Deployment
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  # Connection string structure: Server=tcp:yourserver.database.windows.net,1433;Initial Catalog=yourdb;User ID=youruser;Password=yourpassword;
+  # It is highly recommended to store this value securely in a secret variable or Azure Key Vault!
+  azureSqlConnectionString: '$(SqlConnectionStringSecret)'
+
+stages:
+- stage: Build
+  displayName: 'Build DACPAC'
+  jobs:
+  - job: BuildJob
+    displayName: 'Compile Database Project'
+    steps:
+    - task: MSBuild@1
+      displayName: 'Build SQL Project'
+      inputs:
+        solution: '**/*.sqlproj'
+        configuration: 'Release'
+
+    - task: CopyFiles@2
+      displayName: 'Copy DACPAC Artifact'
+      inputs:
+        SourceFolder: '$(agent.builddirectory)'
+        Contents: '**/*.dacpac'
+        TargetFolder: '$(build.artifactstagingdirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+        ArtifactName: 'database-dacpac'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure SQL'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    displayName: 'Publish DACPAC to Azure'
+    steps:
+    - task: DownloadBuildArtifacts@1
+      displayName: 'Download DACPAC Artifact'
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'database-dacpac'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: SqlAzureDacpacDeployment@1
+      displayName: 'Execute Azure SQL DACPAC Task'
+      inputs:
+        azureSubscription: 'Your-Azure-Service-Connection-Name'
+        AuthenticationType: 'connectionString'
+        ConnectionString: '$(azureSqlConnectionString)'
+        deployType: 'DacpacTask'
+        DeploymentAction: 'Publish'
+        DacpacFile: '$(System.ArtifactsDirectory)/database-dacpac/**/*.dacpac'
+        IpDetectionMethod: 'AutoDetect' # Automatically whitelist Azure DevOps agent IP in your firewall during execution
