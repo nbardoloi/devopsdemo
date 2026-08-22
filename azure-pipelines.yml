@@ -68,11 +68,10 @@ stages:
         downloadPath: '$(System.ArtifactsDirectory)'
 
     - script: |
-        echo "Connection string length: ${#AZURESQLCONNECTIONSTRING}"
+       echo "Connection string length: ${#AZURESQLCONNECTIONSTRING}"
       displayName: 'Debug: check variable length'
       env:
         AZURESQLCONNECTIONSTRING: $(azureSqlConnectionString)
-
 
     - task: SqlAzureDacpacDeployment@1
       displayName: 'Execute Azure SQL DACPAC Task'
