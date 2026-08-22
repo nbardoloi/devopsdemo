@@ -29,11 +29,13 @@ stages:
         command: 'restore'
         projects: '**/*.sqlproj'
         
-    - task: MSBuild@1
+
+    - task: DotNetCoreCLI@2
       displayName: 'Build SQL Project'
       inputs:
-        solution: '**/*.sqlproj'
-        configuration: 'Release'
+        command: 'build'
+        projects: '**/*.sqlproj'
+        arguments: '--configuration Release'
 
     - task: CopyFiles@2
       displayName: 'Copy DACPAC Artifact'
