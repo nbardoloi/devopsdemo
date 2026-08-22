@@ -56,10 +56,10 @@ stages:
     - task: SqlAzureDacpacDeployment@1
       displayName: 'Execute Azure SQL DACPAC Task'
       inputs:
-        azureSubscription: 'Your-Azure-Service-Connection-Name'
+        azureSubscription: 'Azure subscription 1(826d75e6-31fb-4b04-b9d6-50cfa34b5db2)'
         AuthenticationType: 'connectionString'
         ConnectionString: '$(azureSqlConnectionString)'
         deployType: 'DacpacTask'
         DeploymentAction: 'Publish'
         DacpacFile: '$(System.ArtifactsDirectory)/database-dacpac/**/*.dacpac'
-        IpDetectionMethod: 'AutoDetect' # Automatically whitelist Azure DevOps agent IP in your firewall during execution
+        IpDetectionMethod: 'AutoDetect'
