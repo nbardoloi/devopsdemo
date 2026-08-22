@@ -12,11 +12,24 @@ variables:
 
 stages:
 - stage: Build
+
+
   displayName: 'Build DACPAC'
   jobs:
   - job: BuildJob
     displayName: 'Compile Database Project'
     steps:
+
+    - task: NuGetToolInstaller@1
+      displayName: 'Install NuGet'
+
+    - task: NuGetCommand@2
+      displayName: 'NuGet Restore'
+      inputs:
+        command: 'restore'
+        restoreSolution: '**/*.sln'
+        feedsToUse: 'select'
+        
     - task: MSBuild@1
       displayName: 'Build SQL Project'
       inputs:
