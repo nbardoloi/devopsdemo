@@ -8,7 +8,10 @@ pool:
 variables:
   # Connection string structure: Server=tcp:yourserver.database.windows.net,1433;Initial Catalog=yourdb;User ID=youruser;Password=yourpassword;
   # It is highly recommended to store this value securely in a secret variable or Azure Key Vault!
-  azureSqlConnectionString: '$(SqlConnectionStringSecret)'
+  - group: KeyVaultSecrets
+  - name: azureSqlConnectionString
+    value: '$(SqlConnectionStringSecret)'
+
 
 stages:
 - stage: Build
@@ -72,7 +75,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          $len = "$(SqlConnectionStringSecret)".Length
+          $len = "$(azureSqlConnectionString)".Length
           Write-Host "Connection string length: $len"
 
     - task: SqlAzureDacpacDeployment@1
@@ -80,7 +83,7 @@ stages:
       inputs:
         azureSubscription: 'Azure subscription 1(826d75e6-31fb-4b04-b9d6-50cfa34b5db2)'
         AuthenticationType: 'connectionString'
-        ConnectionString: '$(SqlConnectionStringSecret)'
+        ConnectionString: '$(azureSqlConnectionString)'
         deployType: 'DacpacTask'
         DeploymentAction: 'Publish'
         DacpacFile: '$(System.ArtifactsDirectory)/database-dacpac/**/*.dacpac'
