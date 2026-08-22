@@ -27,7 +27,7 @@ stages:
       displayName: 'NuGet Restore'
       inputs:
         command: 'restore'
-        restoreSolution: '**/*.sln'
+        restoreSolution: '**/*.sqlproj'
         feedsToUse: 'select'
         
     - task: MSBuild@1
