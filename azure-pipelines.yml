@@ -72,7 +72,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          $len = "$(azureSqlConnectionString)".Length
+          $len = "$(SqlConnectionStringSecret)".Length
           Write-Host "Connection string length: $len"
 
     - task: SqlAzureDacpacDeployment@1
@@ -80,7 +80,7 @@ stages:
       inputs:
         azureSubscription: 'Azure subscription 1(826d75e6-31fb-4b04-b9d6-50cfa34b5db2)'
         AuthenticationType: 'connectionString'
-        ConnectionString: '$(azureSqlConnectionString)'
+        ConnectionString: '$(SqlConnectionStringSecret)'
         deployType: 'DacpacTask'
         DeploymentAction: 'Publish'
         DacpacFile: '$(System.ArtifactsDirectory)/database-dacpac/**/*.dacpac'
