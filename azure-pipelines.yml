@@ -23,12 +23,11 @@ stages:
     - task: NuGetToolInstaller@1
       displayName: 'Install NuGet'
 
-    - task: NuGetCommand@2
-      displayName: 'NuGet Restore'
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore SQL Project'
       inputs:
         command: 'restore'
-        restoreSolution: '**/*.sqlproj'
-        feedsToUse: 'select'
+        projects: '**/*.sqlproj'
         
     - task: MSBuild@1
       displayName: 'Build SQL Project'
